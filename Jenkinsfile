@@ -1,7 +1,7 @@
 pipeline {
     agent { docker { image 'php' } }
     stages {
-        stage('Build - Saging') {
+        stage('Build - Staging') {
             steps {
                 sh 'sudo docker image prune -f'
                 sh 'sudo docker-compose -f docker-compose.yml build --build-arg ENV=stag'
