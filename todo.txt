@@ -1,0 +1,31 @@
+* add comments in migrations
+* relation to be ::class instead of string
+* use service between controller & repository (repo shouldn't have any business logic)
+* pivot alphabetical order
+* model observers
+* rename ErrorHandler to Errors
+* Cache config
+* Cache routes
+* namespace in new line
+* Errors to be extended in each module
+* php artisan storage:link
+- docker & jenkins
+- jop distpatch after response
+- data mapper before model
+- migration rollback constraint
+- laravel telescope
+- response time (login)
+- Lazy Eager Loading
+
+** use bigint in migrations
+** read about model pivot
+** add throws in doc comments
+** cache to be Queueable job
+** Utl code to interface
+
+
+
+Logging:
+- use https://rollbar.com/
+- use database and build custom service https://github.com/danielme85/laravel-log-to-db
+- us telescpoe in production put enable the exception watcher only
