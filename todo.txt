@@ -29,3 +29,5 @@ Logging:
 - use https://rollbar.com/
 - use database and build custom service https://github.com/danielme85/laravel-log-to-db
 - us telescpoe in production put enable the exception watcher only
+
+test
