@@ -2,6 +2,7 @@ FROM php:7.4-apache
 
 # set main params
 ENV APP_HOME /var/www/html
+ENV APP_DOMAIN localhost
 
 # development packages
 RUN apt-get update
@@ -36,7 +37,8 @@ RUN chown -R www-data:www-data $APP_HOME
 # apache configs + document root
 COPY docker/app/laravel.conf /etc/apache2/sites-available/laravel.conf
 COPY docker/app/laravel-ssl.conf /etc/apache2/sites-available/laravel-ssl.conf
-RUN a2ensite laravel.conf && a2ensite laravel-ssl
+COPY docker/app/laravel-proxy.conf /etc/apache2/sites-available/laravel-proxy.conf
+RUN a2ensite laravel.conf && a2ensite laravel-ssl && a2ensite laravel-proxy
 
 # mod_rewrite for URL rewrite and mod_headers for .htaccess extra headers like Access-Control-Allow-Origin-
 RUN a2enmod rewrite headers
@@ -44,8 +46,12 @@ RUN a2enmod rewrite headers
 # mod_ssl for serving https
 RUN a2enmod ssl
 
+# mod_proxy for revres proxy
+RUN a2enmod proxy
+RUN a2enmod proxy_http
+
 # generate certificates
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=AT/ST=Vienna/L=Vienna/O=Security/OU=Development/CN=example.com"
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert.key -out /etc/ssl/certs/ssl-cert.pem -subj "/C=AT/ST=Vienna/L=Vienna/O=Security/OU=Development/CN=$APP_DOMAIN"
 
 # start with base php config, then add extensions
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
@@ -79,10 +85,12 @@ COPY composer.json composer.json
 WORKDIR $APP_HOME
 
 ARG env
-# RUN if [ "$env" = "prod" ]; \
-#     then  composer update nothing --no-dev --optimize-autoloader; \
-# 	else  composer update nothing --optimize-autoloader;  \
-# 	fi
+
+RUN if [ "$env" = "prod" ]; \
+    then  composer update --lock --no-dev --optimize-autoloader; \
+	else  composer update --lock --optimize-autoloader;  \
+	fi
+
 RUN if [ "$env" = "prod" ]; \
     then  composer install --no-dev --optimize-autoloader; \
 	else  composer install --optimize-autoloader;  \

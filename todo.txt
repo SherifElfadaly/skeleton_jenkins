@@ -16,6 +16,7 @@
 - laravel telescope
 - response time (login)
 - Lazy Eager Loading
+- remove timezone
 
 ** use bigint in migrations
 ** read about model pivot
