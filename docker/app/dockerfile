@@ -37,7 +37,7 @@ COPY docker/app/laravel-proxy.conf /etc/apache2/sites-available/laravel-proxy.co
 RUN a2ensite laravel.conf && a2ensite laravel-ssl && a2ensite laravel-proxy
 
 # use fast cgi instead if mod_php
-RUN a2enmod proxy_fcgi && a2dismod php7.0
+RUN a2enmod proxy_fcgi && a2dismod php7.4
 
 # mod_rewrite for URL rewrite and mod_headers for .htaccess extra headers like Access-Control-Allow-Origin-
 RUN a2enmod rewrite headers
