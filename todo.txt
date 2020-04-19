@@ -9,20 +9,23 @@
 * namespace in new line
 * Errors to be extended in each module
 * php artisan storage:link
-- docker & jenkins
-- jop distpatch after response
-- data mapper before model
-- migration rollback constraint
+* docker & jenkins
+* remove timezone
+* Lazy Eager Loading
 - laravel telescope
 - response time (login)
-- Lazy Eager Loading
-- remove timezone
+- data mapper before model
+- migration rollback constraint
+- docker env with passport
+- dates format
 
 ** use bigint in migrations
 ** read about model pivot
 ** add throws in doc comments
 ** cache to be Queueable job
 ** Utl code to interface
+** jop distpatch after response
+** use https://github.com/brozot/Laravel-FCM
 
 
 

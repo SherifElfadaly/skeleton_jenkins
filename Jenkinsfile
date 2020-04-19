@@ -7,7 +7,7 @@ pipeline {
             }
             steps {
                 sh 'sudo docker image prune -f'
-                sh 'sudo docker-compose -f docker-compose.yml build --build-arg ENV=stag'
+                sh 'sudo docker-compose -f docker-compose.stg.yml build'
             }
         }
         stage('Build - Production') {
@@ -16,12 +16,23 @@ pipeline {
             }
             steps {
                 sh 'sudo docker image prune -f'
-                sh 'sudo docker-compose -f docker-compose.yml build --build-arg ENV=prod'
+                sh 'sudo docker-compose -f docker-compose.prod.yml build'
             }
         }
-        stage('Deploy') {
+        stage('Deploy - Staging') {
+            when {
+                branch 'staging'
+            }
             steps {
-                sh 'sudo docker-compose -f docker-compose.yml up -d'
+                sh 'sudo docker-compose -f docker-compose.stg.yml up -d'
+            }
+        }
+        stage('Deploy - Production') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh 'sudo docker-compose -f docker-compose.prod.yml up -d'
             }
         }
     }

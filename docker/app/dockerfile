@@ -1,12 +1,9 @@
-FROM php:7.4-apache
+FROM php:7.4-fpm
 
-# set main params
-ENV APP_HOME /var/www/html
-ENV APP_DOMAIN localhost
+WORKDIR /var/www/html/
 
 # development packages
-RUN apt-get update
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     git \
     zip \
     curl \
@@ -19,41 +16,16 @@ RUN apt-get install -y \
     libmcrypt-dev \
     libreadline-dev \
     libfreetype6-dev \
-    libonig-dev\
-    libzip-dev\
-    g++
+    libonig-dev \
+    libzip-dev \
+    g++ \
+    cron
 
-# disable default site and delete all default files inside APP_HOME
-RUN a2dissite 000-default.conf
-RUN rm -r $APP_HOME
-
-# create document root
-RUN mkdir -p $APP_HOME/public
-
-# apache configs + document root
-COPY docker/app/laravel.conf /etc/apache2/sites-available/laravel.conf
-COPY docker/app/laravel-ssl.conf /etc/apache2/sites-available/laravel-ssl.conf
-COPY docker/app/laravel-proxy.conf /etc/apache2/sites-available/laravel-proxy.conf
-RUN a2ensite laravel.conf && a2ensite laravel-ssl && a2ensite laravel-proxy
-
-# use fast cgi instead if mod_php
-RUN a2enmod proxy_fcgi && a2dismod php
-
-# mod_rewrite for URL rewrite and mod_headers for .htaccess extra headers like Access-Control-Allow-Origin-
-RUN a2enmod rewrite headers
-
-# mod_ssl for serving https
-RUN a2enmod ssl
-
-# mod_proxy for revres proxy
-RUN a2enmod proxy
-RUN a2enmod proxy_http
-
-# generate certificates
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert.key -out /etc/ssl/certs/ssl-cert.pem -subj "/C=AT/ST=Vienna/L=Vienna/O=Security/OU=Development/CN=$APP_DOMAIN"
-
-# start with base php config, then add extensions
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+# add php configurations
+COPY docker/app/php.ini /usr/local/etc/php/conf.d
+COPY docker/app/laravel.ini /usr/local/etc/php/conf.d
+COPY docker/app/opcache.ini /usr/local/etc/php/conf.d
+COPY docker/app/xlaravel.pool.conf /usr/local/etc/php-fpm.d
 
 RUN docker-php-ext-install \
     bz2 \
@@ -71,46 +43,12 @@ RUN docker-php-source extract && \
     docker-php-ext-enable redis && \
     docker-php-source delete
 
-# copy files
-COPY . .
-
 # composer
-RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer && composer global require hirak/prestissimo --no-plugins --no-scripts
+RUN curl -sS https://getcomposer.org/installer | php && \
+    mv composer.phar /usr/local/bin/composer && \
+    composer global require hirak/prestissimo --no-plugins --no-scripts
 
-# composer install
-COPY composer.json composer.json
-
-# set working directory
-WORKDIR $APP_HOME
-
-ARG env
-
-RUN if [ "$env" = "prod" ]; \
-    then  composer update --lock --no-dev --optimize-autoloader; \
-	else  composer update --lock --optimize-autoloader;  \
-	fi
-
-RUN if [ "$env" = "prod" ]; \
-    then  composer install --no-dev --optimize-autoloader; \
-	else  composer install --optimize-autoloader;  \
-	fi
-
-RUN rm -rf /root/.composer
-
-# create env file based on env variable
-RUN if [ "$env" = "prod" ]; \
-    then  cp docker/app/.env-prod .env; \
-	else  cp docker/app/.env-dev .env;  \
-	fi
-    
-# create laravel-echo-server file based on env variable
-RUN if [ "$env" = "prod" ]; \
-    then  cp docker/app/laravel-echo-server-prod.json laravel-echo-server.json; \
-	else  cp docker/app/laravel-echo-server-dev.json laravel-echo-server.json;  \
-	fi
-
-# install cron
-RUN apt-get -y install cron
+# configure cron
 RUN touch /etc/cron.d/crons
 RUN touch /var/log/cron.log
 RUN chmod 0644 /etc/cron.d/crons
@@ -118,16 +56,15 @@ RUN chmod 0644 /etc/cron.d/crons
 # register laravel scheduler
 COPY docker/app/crons crons
 
-# install node
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash
-RUN apt-get -y install nodejs
+RUN sudo chown -R www-data:www-data /var/www/html && \ 
+    sudo find /var/www/html -type f -exec chmod 664 {} \; && \
+    sudo find /var/www/html -type d -exec chmod 775 {} \;
 
-# install laravel echo server
-RUN npm install -g laravel-echo-server
 
 # start server, clear cach, run migrations and restart queue
-CMD service apache2 restart && \
-    composer dump-autoload -a && \
+CMD php-fpm -D && \
+    composer update nothing --prefer-dist --lock && \
+    composer install --prefer-dist --optimize-autoloader && \
     php artisan module:optimize && \
     php artisan key:generate && \ 
     php artisan clear-compiled && \
@@ -140,5 +77,4 @@ CMD service apache2 restart && \
     php artisan module:migrate && \
     php artisan module:seed && \
     php artisan storage:link && \
-    laravel-echo-server start && \
     php artisan queue:work redis --sleep=3 --tries=3
