@@ -3,16 +3,14 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'cp /var/www/configs/skeleton/.env docker/.env'
-                sh 'cd docker'
-                sh 'docker image prune -f'
-                sh 'docker-compose -f docker-compose.yml build'
+                sh 'cp /var/www/configs/skeleton/.env .env'
+                sh 'sudo docker image prune -f'
+                sh 'sudo docker-compose -f docker/docker-compose.yml build'
             }
         }
         stage('Deploy') {
             steps {
-                sh 'cd docker'
-                sh 'docker-compose -f docker-compose.yml up -d'
+                sh 'sudo docker-compose -f docker/docker-compose.yml up -d'
             }
         }
     }
