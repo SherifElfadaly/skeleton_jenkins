@@ -12,13 +12,10 @@
 * docker & jenkins
 * remove timezone
 * Lazy Eager Loading
-- laravel telescope
-- response time (login)
-- data mapper before model
-- migration rollback constraint
-- docker env with passport
-- dates format
+* docker env with passport
+* migration rollback constraint
 
+** laravel telescope
 ** use bigint in migrations
 ** read about model pivot
 ** add throws in doc comments
@@ -26,8 +23,9 @@
 ** Utl code to interface
 ** jop distpatch after response
 ** use https://github.com/brozot/Laravel-FCM
-
-
+** response time (login)
+** data mapper before model
+** dates format
 
 Logging:
 - use https://rollbar.com/

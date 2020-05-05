@@ -12,6 +12,8 @@
         "api-skeleton/api-skeleton": "^1.3",
         "fideloper/proxy": "^4.0",
         "fzaninotto/faker": "^1.9.1",
+        "imliam/laravel-env-set-command": "^1.0.0",
+        "jackiedo/dotenv-editor": "^1.1",
         "laravel/framework": "^6.2",
         "laravel/telescope": "^3.2",
         "laravel/tinker": "^2.0",

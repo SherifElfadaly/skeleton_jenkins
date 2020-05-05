@@ -51,6 +51,13 @@
       0 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
     ),
   ),
+  'imliam/laravel-env-set-command' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'ImLiam\\EnvironmentSetCommand\\EnvironmentSetCommandServiceProvider',
+    ),
+  ),
   'intervention/image' => 
   array (
     'providers' => 
@@ -60,6 +67,17 @@
     'aliases' => 
     array (
       'Image' => 'Intervention\\Image\\Facades\\Image',
+    ),
+  ),
+  'jackiedo/dotenv-editor' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Jackiedo\\DotenvEditor\\DotenvEditorServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'DotenvEditor' => 'Jackiedo\\DotenvEditor\\Facades\\DotenvEditor',
     ),
   ),
   'laravel/passport' => 
