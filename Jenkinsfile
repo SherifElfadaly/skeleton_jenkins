@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'mkdir -p /var/www/html/skeleton'
+                sh 'sudo mkdir -p /var/www/html/skeleton'
                 sh 'cp * /var/www/html/skeleton'
                 sh 'cd /var/www/html/skeleton'
                 sh 'cp /var/www/configs/skeleton/.env .env'
