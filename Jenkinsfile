@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'sudo mkdir -p /var/www/html/skeleton'
-                sh 'sudo cp * /var/www/html/skeleton'
+                sh 'sudo cp -r * /var/www/html/skeleton'
                 sh 'cd /var/www/html/skeleton'
                 sh 'sudo cp /var/www/configs/skeleton/.env .env'
                 sh 'sudo docker image prune -f'
