@@ -56,13 +56,11 @@ RUN chmod 0644 /etc/cron.d/crons
 # register laravel scheduler
 COPY app/crons crons
 
-RUN sudo chown -R www-data:www-data /var/www/html && \ 
-    sudo find /var/www/html -type f -exec chmod 664 {} \; && \
-    sudo find /var/www/html -type d -exec chmod 775 {} \;
-
-
 # start server, clear cach, run migrations and restart queue
 CMD php-fpm -D && \
+    sudo chown -R www-data:www-data /var/www/html && \ 
+    sudo find /var/www/html -type f -exec chmod 664 {} \; && \
+    sudo find /var/www/html -type d -exec chmod 775 {} \; && \
     composer update nothing --prefer-dist --lock && \
     composer install --prefer-dist --optimize-autoloader && \
     php artisan module:optimize && \
@@ -75,4 +73,5 @@ CMD php-fpm -D && \
     php artisan module:seed && \
     php artisan storage:link && \
     php artisan module:passport:install && \
+    php artisan doc:generate && \
     php artisan queue:work redis --sleep=3 --tries=3
